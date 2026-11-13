@@ -1,0 +1,49 @@
+---
+import LeadForm from './LeadForm.astro';
+import Icon from './Icon.astro';
+import Text from './Text.astro';
+import { contacts, site } from '../config/site';
+interface Props { title?: string; text?: string; source?: string }
+const {
+  title = 'Расскажите, что случилось',
+  text = 'Опишите ситуацию в двух-трёх предложениях. Мы изучим её и скажем, какой документ нужен, сколько это будет стоить и в какой срок.',
+  source = 'cta',
+} = Astro.props;
+---
+<section id="zayavka" class="dark-zone relative isolate overflow-hidden py-20 md:py-28">
+  <div class="stripes -z-10 opacity-25 [mask-image:linear-gradient(180deg,transparent,#000_40%,#000_60%,transparent)]" style="--cols:9">
+    {Array.from({ length: 9 }, (_, i) => <i style={`--a:${0.3 + ((i * 37) % 60) / 100};--d:${11 + (i % 5) * 2}s;--delay:-${i * 1.7}s`}></i>)}
+  </div>
+  <div class="dots -z-10 opacity-60"></div>
+  <div class="pointer-events-none absolute right-[-10%] top-1/2 -z-10 size-[620px] -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(47,107,255,0.35),transparent_65%)] blur-2xl"></div>
+
+  <div class="container-x grid gap-12 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-5">
+      <p class="reveal eyebrow text-accent-bright">Заявка</p>
+      <h2 class="reveal h-section mt-4 text-white" style="--i:1">{title}</h2>
+      <p class="reveal mt-5 max-w-md text-lg text-white/65" style="--i:2">{text}</p>
+
+      <div class="reveal mt-10 space-y-3" style="--i:3">
+        <p class="text-sm font-medium text-white/60">Удобнее в мессенджере?</p>
+        <div class="flex flex-wrap gap-3">
+          <a href={contacts.telegram} target="_blank" rel="noopener" data-goal="messenger_click" class="btn btn-ghost"><Icon name="telegram" class="size-5" />Telegram</a>
+          <a href={contacts.whatsapp} target="_blank" rel="noopener" data-goal="messenger_click" class="btn btn-ghost"><Icon name="whatsapp" class="size-5" />WhatsApp</a>
+          <a href={contacts.phoneHref} data-goal="phone_click" class="btn btn-ghost"><Icon name="phone" class="size-5" />Позвонить</a>
+        </div>
+      </div>
+
+      <ul class="reveal mt-10 space-y-3 text-[15px] text-white/65" style="--i:4">
+        <li class="flex gap-3"><Icon name="clock" class="mt-0.5 size-5 shrink-0 text-accent-bright" /><span>Ответим: <Text value={site.responseTime} /></span></li>
+        <li class="flex gap-3"><Icon name="lock" class="mt-0.5 size-5 shrink-0 text-accent-bright" /><span>Сведения о вашей ситуации используются только для работы над вопросом</span></li>
+        <li class="flex gap-3"><Icon name="doc" class="mt-0.5 size-5 shrink-0 text-accent-bright" /><span>Стоимость и срок называем до начала работы</span></li>
+      </ul>
+    </div>
+
+    <div class="reveal lg:col-span-7" style="--i:2">
+      <div class="relative rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_40px_120px_-40px_rgba(30,79,230,0.6)] backdrop-blur-xl md:p-10">
+        <div class="pointer-events-none absolute inset-x-10 -top-px h-px bg-gradient-to-r from-transparent via-accent-bright to-transparent"></div>
+        <LeadForm source={source} />
+      </div>
+    </div>
+  </div>
+</section>

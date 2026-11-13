@@ -1,0 +1,52 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import CtaSection from '../../components/CtaSection.astro';
+import Icon from '../../components/Icon.astro';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: services.map((s, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: s.data.title,
+    url: new URL(`/uslugi/${s.id}/`, Astro.site).href,
+  })),
+};
+---
+<Base
+  title="Юридические услуги онлайн: иски, жалобы, ходатайства, претензии"
+  description="Составление исков, ходатайств, жалоб, претензий и обращений в госорганы, правовая экспертиза документов. Полностью онлайн, стоимость от 5 000 ₽."
+  jsonLd={itemList}
+>
+  <PageHero
+    eyebrow="Услуги"
+    title="Документы для суда и госорганов — дистанционно"
+    lead="Выберите услугу, которая ближе к вашей ситуации. Если не уверены, какой документ нужен, — опишите задачу, и мы подскажем."
+    crumbs={[{ href: '/uslugi/', label: 'Услуги' }]}
+  />
+
+  <section class="py-16 md:py-24">
+    <div class="container-x">
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((s, i) => (
+          <ServiceCard id={s.id} index={i} title={s.data.title} situation={s.data.situation} short={s.data.short} price={s.data.price} icon={s.data.icon} />
+        ))}
+      </div>
+
+      <div class="reveal card mt-12 flex flex-col items-start justify-between gap-6 p-7 md:flex-row md:items-center md:p-10">
+        <div>
+          <h2 class="text-2xl md:text-3xl">Не нашли свою ситуацию?</h2>
+          <p class="mt-2 max-w-xl text-muted">Мы работаем с разными вопросами в рамках составления документов и правовой экспертизы. Опишите задачу — скажем, сможем ли помочь.</p>
+        </div>
+        <a href="#zayavka" class="btn btn-primary shrink-0">Описать ситуацию <Icon name="arrow" class="arrow size-5" /></a>
+      </div>
+    </div>
+  </section>
+
+  <CtaSection source="services" />
+</Base>

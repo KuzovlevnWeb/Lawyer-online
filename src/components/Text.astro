@@ -1,0 +1,7 @@
+---
+/** Выводит строку из конфига, подсвечивая плейсхолдеры [ЗАПОЛНИТЬ ...] */
+interface Props { value: string }
+const { value } = Astro.props;
+const parts = value.split(/(\[ЗАПОЛНИТЬ[^\]]*\])/g).filter(Boolean);
+---
+{parts.map((p) => (p.startsWith('[ЗАПОЛНИТЬ') ? <mark class="fill">{p}</mark> : p))}

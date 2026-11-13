@@ -1,0 +1,158 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import Steps from '../components/Steps.astro';
+import Faq from '../components/Faq.astro';
+import CtaSection from '../components/CtaSection.astro';
+import IsoIcon from '../components/IsoIcon.astro';
+import Icon from '../components/Icon.astro';
+import Fill from '../components/Fill.astro';
+import { faq, regions } from '../config/site';
+import { legalServiceLd } from '../lib/schema';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const docTypes = ['Исковое заявление', 'Ходатайство', 'Заявление в суд', 'Жалоба', 'Обращение в прокуратуру', 'Досудебная претензия', 'Правовая экспертиза', 'Заявление в госорган'];
+---
+<Base
+  title="Юристы онлайн: иски, жалобы, ходатайства, правовая экспертиза"
+  description="Два юриста с практикой более 10 лет. Составляем иски, ходатайства, жалобы и обращения в органы, проводим правовую экспертизу документов. Полностью онлайн, от 5 000 ₽."
+  jsonLd={legalServiceLd(Astro.site!)}
+>
+  <Hero />
+
+  <!-- Бегущая строка с типами документов -->
+  <div class="marquee relative -mt-6 overflow-hidden py-6" aria-hidden="true">
+    <div class="marquee-track gap-3">
+      {[...docTypes, ...docTypes].map((d) => (
+        <span class="flex items-center gap-3 whitespace-nowrap rounded-full border border-line bg-white px-5 py-2.5 text-[15px] font-medium text-text shadow-[0_6px_20px_-12px_rgba(11,26,61,0.25)]">
+          <span class="size-1.5 rounded-full bg-accent"></span>{d}
+        </span>
+      ))}
+    </div>
+  </div>
+
+  <!-- Услуги -->
+  <section class="py-20 md:py-28" id="uslugi">
+    <div class="container-x">
+      <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div>
+          <p class="reveal eyebrow text-accent">Услуги</p>
+          <h2 class="reveal h-section mt-4 max-w-2xl" style="--i:1">Узнаёте свою ситуацию?</h2>
+          <p class="reveal mt-5 max-w-xl text-muted" style="--i:2">Выберите то, что ближе к вашей задаче. Если не уверены — просто опишите ситуацию, мы подскажем, какой документ нужен.</p>
+        </div>
+        <a href="/uslugi/" class="reveal btn btn-ghost self-start md:self-auto" style="--i:2">Все услуги <Icon name="arrow" class="arrow size-4" /></a>
+      </div>
+      <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((s, i) => (
+          <ServiceCard id={s.id} index={i} title={s.data.title} situation={s.data.situation} short={s.data.short} price={s.data.price} icon={s.data.icon} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Манифест с «плашками» -->
+  <section class="relative overflow-hidden bg-white py-24 md:py-36">
+    <div class="dots dots-light opacity-70"></div>
+    <svg class="pointer-events-none absolute inset-0 size-full" aria-hidden="true">
+      <line x1="8%" y1="92%" x2="38%" y2="8%" stroke="#c9d5ef" stroke-dasharray="2 6" />
+      <line x1="62%" y1="92%" x2="92%" y2="12%" stroke="#c9d5ef" stroke-dasharray="2 6" />
+    </svg>
+    <div class="container-x relative text-center">
+      <p class="reveal eyebrow text-accent">Наш подход</p>
+      <p class="reveal mx-auto mt-8 max-w-5xl font-display text-[clamp(1.9rem,1.1rem+3.6vw,4rem)] font-semibold leading-[1.18] tracking-tight" style="--i:1">
+        <span class="chip chip-gray">Более 10 лет</span> практики, <span class="chip chip-blue">полностью онлайн</span> — от первого сообщения до <span class="chip chip-ink">готового документа</span>
+      </p>
+      <p class="reveal mx-auto mt-10 max-w-2xl text-lg text-muted" style="--i:2">
+        Мы не обещаем исход дела — его определяет суд. Мы обещаем внимательно разобраться в ситуации, честно сказать о рисках и подготовить документ, за который не стыдно.
+      </p>
+    </div>
+  </section>
+
+  <Steps />
+
+  <!-- Почему спокойно -->
+  <section class="pb-20 md:pb-28">
+    <div class="container-x">
+      <p class="reveal eyebrow text-accent">Принципы</p>
+      <h2 class="reveal h-section mt-4 max-w-3xl" style="--i:1">Почему с нами спокойнее</h2>
+
+      <div class="mt-12 grid gap-5 lg:grid-cols-12">
+        <article class="reveal dark-zone spot relative isolate overflow-hidden rounded-[28px] p-7 md:p-10 lg:col-span-7 lg:row-span-2">
+          <div class="dots -z-10 opacity-60"></div>
+          <div class="absolute -bottom-40 left-1/2 -z-10 size-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(47,107,255,0.45),transparent_60%)]"></div>
+          <span class="eyebrow text-accent-bright">01</span>
+          <h3 class="mt-4 max-w-md text-3xl text-white md:text-4xl">Честно о перспективах</h3>
+          <p class="mt-4 max-w-md text-white/65">Не обещаем выигрыш и не запугиваем. Оцениваем перспективы, объясняем риски и предлагаем варианты. Если документ не поможет — так и скажем.</p>
+          <IsoIcon variant="shield" dark class="iso-reveal mx-auto mt-8 h-56 w-auto md:h-72" />
+        </article>
+
+        <article class="reveal card spot p-7 lg:col-span-5" style="--i:1">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <span class="eyebrow text-accent">02</span>
+              <h3 class="mt-3 text-2xl">Полностью онлайн</h3>
+            </div>
+            <IsoIcon variant="chat" class="iso-reveal h-20 w-auto" />
+          </div>
+          <p class="mt-3 text-muted">Документы — фото или сканами, общение — в мессенджере или по телефону. Не нужно отпрашиваться с работы и ехать в офис.</p>
+        </article>
+
+        <article class="reveal card spot p-7 lg:col-span-5" style="--i:2">
+          <span class="eyebrow text-accent">03</span>
+          <h3 class="mt-3 text-2xl">Регионы практики</h3>
+          <ul class="mt-4 space-y-2.5">
+            {regions.map((r) => (
+              <li class="flex items-center gap-3"><Icon name="pin" class="size-5 shrink-0 text-accent" /><span><span class="font-semibold">{r.name}</span> <span class="text-muted">{r.note}</span></span></li>
+            ))}
+          </ul>
+          <p class="mt-4 text-sm text-muted">Клиенты из других городов и из-за рубежа — дистанционно.</p>
+        </article>
+
+        <article class="reveal card spot p-7 lg:col-span-6" style="--i:1">
+          <span class="eyebrow text-accent">04</span>
+          <h3 class="mt-3 text-2xl">Конфиденциально</h3>
+          <p class="mt-3 text-muted">Сведения о вашей ситуации используем только для работы над вопросом. Данные клиентов и дел нигде не публикуем.</p>
+        </article>
+        <article class="reveal card spot p-7 lg:col-span-6" style="--i:2">
+          <span class="eyebrow text-accent">05</span>
+          <h3 class="mt-3 text-2xl">Понятным языком</h3>
+          <p class="mt-3 text-muted">Объясняем, что написано в документе, зачем и что будет дальше. Вы понимаете каждый шаг, а не просто получаете файл.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- О нас: кратко -->
+  <section class="relative overflow-hidden bg-white py-20 md:py-28">
+    <div class="container-x grid items-center gap-12 lg:grid-cols-12">
+      <div class="lg:col-span-5">
+        <p class="reveal eyebrow text-accent">О нас</p>
+        <h2 class="reveal h-section mt-4" style="--i:1">Кто будет работать над вашим вопросом</h2>
+        <p class="reveal mt-5 text-lg text-muted" style="--i:2">
+          Нас двое: мы юристы и супруги, в практике больше 10 лет. Над вашим вопросом работаем мы сами: вы общаетесь напрямую с юристом, который готовит ваш документ.
+        </p>
+        <a href="/o-nas/" class="reveal btn btn-ghost mt-8" style="--i:3">Подробнее о нас <Icon name="arrow" class="arrow size-4" /></a>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2 lg:col-span-7">
+        {[1, 2].map((n, i) => (
+          <figure class="reveal card overflow-hidden" style={`--i:${i + 1}`}>
+            <div class="relative grid aspect-[4/4.2] place-items-center overflow-hidden bg-[linear-gradient(160deg,#e9efff,#f7f9fd)]">
+              <div class="dots dots-light"></div>
+              <span class="relative font-display text-7xl font-bold text-accent/15">Ю{n}</span>
+              <span class="absolute bottom-3 left-3 right-3 text-center text-xs"><Fill>реальное фото юриста {n} или оставить без фото</Fill></span>
+            </div>
+            <figcaption class="p-5">
+              <p class="font-display text-lg font-semibold"><Fill>имя и фамилия</Fill></p>
+              <p class="mt-1 text-sm text-muted">Юрист · <Fill>специализация</Fill></p>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Faq items={faq} />
+  <CtaSection source="home" />
+</Base>

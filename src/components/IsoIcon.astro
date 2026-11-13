@@ -1,0 +1,138 @@
+---
+/**
+ * Изометрические линейные иллюстрации, построенные программно.
+ * Линии «прорисовываются», когда блок появляется на экране.
+ */
+type Variant = 'stack' | 'upright' | 'arrow' | 'envelope' | 'parties' | 'cube' | 'shield' | 'chat';
+interface Props {
+  variant: Variant;
+  class?: string;
+  dark?: boolean;
+}
+const { variant, class: cls = '', dark = false } = Astro.props;
+
+type Box = { x: number; y: number; z: number; w: number; d: number; h: number; accent?: 'top' | 'right' | 'left'; lines?: number; v?: boolean };
+
+const S = 18;
+const iso = (x: number, y: number, z: number): [number, number] => [(x - y) * 0.866 * S, (x + y) * 0.5 * S - z * S];
+
+const scenes: Record<Variant, Box[]> = {
+  stack: [
+    { x: 1.2, y: 1.4, z: 0, w: 3.4, d: 4.2, h: 0.28 },
+    { x: 1.0, y: 1.1, z: 0.42, w: 3.4, d: 4.2, h: 0.28 },
+    { x: 0.8, y: 0.8, z: 0.84, w: 3.4, d: 4.2, h: 0.28, accent: 'top', lines: 4 },
+  ],
+  upright: [
+    { x: 1, y: 1.2, z: 0, w: 4, d: 3.6, h: 0.5 },
+    { x: 2.6, y: 1.6, z: 0.5, w: 0.3, d: 2.8, h: 3.6, accent: 'right' },
+  ],
+  arrow: [
+    { x: 0.6, y: 2.2, z: 0, w: 1.4, d: 1.6, h: 1 },
+    { x: 2.0, y: 2.2, z: 0, w: 1.4, d: 1.6, h: 2 },
+    { x: 3.4, y: 2.2, z: 0, w: 1.4, d: 1.6, h: 3, accent: 'top' },
+  ],
+  envelope: [
+    { x: 1, y: 1.4, z: 0, w: 3.8, d: 2.8, h: 0.55, accent: 'top', v: true },
+  ],
+  parties: [
+    { x: 0.4, y: 2.6, z: 0, w: 1.5, d: 1.5, h: 1.5 },
+    { x: 4.2, y: 0.4, z: 0, w: 1.5, d: 1.5, h: 1.5 },
+    { x: 2.3, y: 1.8, z: 0.6, w: 1.6, d: 2.1, h: 0.18, accent: 'top', lines: 3 },
+  ],
+  cube: (() => {
+    const out: Box[] = [];
+    for (let z = 0; z < 2; z++)
+      for (let y = 0; y < 2; y++)
+        for (let x = 0; x < 2; x++)
+          out.push({ x: 1.6 + x * 1.3, y: 1.6 + y * 1.3, z: z * 1.3, w: 1.3, d: 1.3, h: 1.3, accent: x === 1 && y === 1 && z === 1 ? 'top' : undefined });
+    return out;
+  })(),
+  shield: [
+    { x: 1.4, y: 1.4, z: 0, w: 3.2, d: 3.2, h: 0.4 },
+    { x: 2.2, y: 2.2, z: 0.4, w: 1.6, d: 1.6, h: 2.4, accent: 'top' },
+  ],
+  chat: [
+    { x: 0.8, y: 2.2, z: 0.2, w: 2.6, d: 1.8, h: 0.35, lines: 2 },
+    { x: 2.6, y: 0.6, z: 1.2, w: 2.6, d: 1.8, h: 0.35, accent: 'top', lines: 2 },
+  ],
+};
+
+const boxes = scenes[variant];
+const P = (pts: [number, number][]) => pts.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' ');
+
+const solid: string[] = [];
+const hidden: string[] = [];
+const faces: string[] = [];
+
+// Платформа с сеткой
+const G = 6;
+const grid: string[] = [];
+for (let i = 0; i <= G; i++) {
+  grid.push(P([iso(i, 0, 0), iso(i, G, 0)]));
+  grid.push(P([iso(0, i, 0), iso(G, i, 0)]));
+}
+
+for (const b of boxes) {
+  const { x, y, z, w, d, h } = b;
+  const c = {
+    a: iso(x, y, z), b: iso(x + w, y, z), c: iso(x + w, y + d, z), d: iso(x, y + d, z),
+    A: iso(x, y, z + h), B: iso(x + w, y, z + h), C: iso(x + w, y + d, z + h), D: iso(x, y + d, z + h),
+  };
+  // Видимые грани: верх, правая (+x), левая (+y)
+  solid.push(P([c.A, c.B, c.C, c.D, c.A]));
+  solid.push(P([c.B, c.b, c.c, c.C]));
+  solid.push(P([c.c, c.d, c.D]));
+  hidden.push(P([c.a, c.b]), P([c.a, c.d]), P([c.a, c.A]));
+  if (b.accent === 'top') faces.push(P([c.A, c.B, c.C, c.D]));
+  if (b.accent === 'right') faces.push(P([c.B, c.b, c.c, c.C]));
+  if (b.accent === 'left') faces.push(P([c.D, c.C, c.c, c.d]));
+  if (b.lines) {
+    for (let i = 1; i <= b.lines; i++) {
+      const t = i / (b.lines + 1);
+      const yy = y + d * t;
+      solid.push(P([iso(x + w * 0.18, yy, z + h), iso(x + w * (i === b.lines ? 0.55 : 0.82), yy, z + h)]));
+    }
+  }
+  if (b.v) {
+    const mid = iso(x + w / 2, y + d / 2, z + h);
+    solid.push(P([c.A, mid, c.D]));
+  }
+}
+
+// Габариты для viewBox
+const all = [...grid, ...solid].flatMap((s) => s.split(' ').map((p) => p.split(',').map(Number)));
+const xs = all.map((p) => p[0]);
+const ys = all.map((p) => p[1]);
+const pad = 6;
+const minX = Math.min(...xs) - pad;
+const minY = Math.min(...ys) - pad;
+const vw = Math.max(...xs) - minX + pad;
+const vh = Math.max(...ys) - minY + pad;
+
+const stroke = dark ? '#7fa8ff' : '#1e4fe6';
+const gridStroke = dark ? 'rgba(160,190,255,0.28)' : 'rgba(30,79,230,0.22)';
+const faceFill = dark ? 'url(#iso-grad-d)' : 'url(#iso-grad-l)';
+---
+<svg
+  class={`iso ${cls}`}
+  viewBox={`${minX.toFixed(1)} ${minY.toFixed(1)} ${vw.toFixed(1)} ${vh.toFixed(1)}`}
+  fill="none"
+  aria-hidden="true"
+>
+  <defs>
+    <linearGradient id="iso-grad-l" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a86ff" stop-opacity="0.95" />
+      <stop offset="1" stop-color="#1e4fe6" stop-opacity="0.75" />
+    </linearGradient>
+    <linearGradient id="iso-grad-d" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9cc0ff" stop-opacity="0.9" />
+      <stop offset="1" stop-color="#2b5cf0" stop-opacity="0.6" />
+    </linearGradient>
+  </defs>
+  <g class="face">
+    {grid.map((pts) => <polyline points={pts} stroke={gridStroke} stroke-width="0.8" stroke-dasharray="2 3" />)}
+    {hidden.map((pts) => <polyline points={pts} stroke={stroke} stroke-opacity="0.35" stroke-width="0.9" stroke-dasharray="2 2.5" />)}
+  </g>
+  {faces.map((pts) => <polygon class="face" points={pts} fill={faceFill} />)}
+  {solid.map((pts) => <polyline points={pts} pathLength="1" stroke={stroke} stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" />)}
+</svg>

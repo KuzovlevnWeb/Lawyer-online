@@ -1,0 +1,123 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaSection from '../../components/CtaSection.astro';
+import Faq from '../../components/Faq.astro';
+import IsoIcon from '../../components/IsoIcon.astro';
+import Icon from '../../components/Icon.astro';
+import Text from '../../components/Text.astro';
+import { contacts, site, regionsAll } from '../../config/site';
+
+export async function getStaticPaths() {
+  const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+  return services.map((entry) => ({ params: { slug: entry.id }, props: { entry, all: services } }));
+}
+
+const { entry, all } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const others = all.filter((s) => s.id !== entry.id).slice(0, 3);
+
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: d.title,
+  description: d.description,
+  serviceType: d.title,
+  areaServed: regionsAll.map((name) => ({ '@type': 'AdministrativeArea', name })),
+  provider: { '@type': 'LegalService', name: site.brand, url: Astro.site!.href },
+  offers: { '@type': 'Offer', priceCurrency: 'RUB', price: site.priceFromNumber, description: d.price },
+};
+---
+<Base title={d.seoTitle} description={d.description} jsonLd={serviceLd}>
+  <PageHero
+    eyebrow={`Услуга · ${String(d.order).padStart(2, '0')}`}
+    title={d.title}
+    lead={d.short}
+    crumbs={[{ href: '/uslugi/', label: 'Услуги' }, { href: `/uslugi/${entry.id}/`, label: d.title }]}
+  >
+    <div class="fade-up mt-8 flex flex-wrap gap-3" style="--delay:.65s">
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white"><Icon name="doc" class="size-4 text-accent-bright" />{d.price}</span>
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white"><Icon name="clock" class="size-4 text-accent-bright" />Срок: <Text value={d.timing} /></span>
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white"><Icon name="chat" class="size-4 text-accent-bright" />Полностью онлайн</span>
+    </div>
+    <div class="fade-up mt-8 flex flex-col gap-3 sm:flex-row" style="--delay:.8s">
+      <a href="#zayavka" class="btn btn-primary">Описать ситуацию <Icon name="arrow" class="arrow size-5" /></a>
+      <a href={contacts.telegram} target="_blank" rel="noopener" data-goal="messenger_click" class="btn btn-ghost"><Icon name="telegram" class="size-5" />Написать в Telegram</a>
+    </div>
+  </PageHero>
+
+  <section class="py-16 md:py-24">
+    <div class="container-x grid gap-12 lg:grid-cols-12">
+      <div class="space-y-16 lg:col-span-8">
+        <div class="reveal prose-legal text-lg"><Content /></div>
+
+        <div>
+          <h2 class="reveal text-3xl md:text-4xl">Что входит в услугу</h2>
+          <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+            {d.includes.map((item, i) => (
+              <li class="reveal card flex gap-3.5 p-5" style={`--i:${i % 4}`}>
+                <span class="grid size-7 shrink-0 place-items-center rounded-full bg-accent/10 text-accent"><Icon name="check" class="size-4" /></span>
+                <span class="text-[15.5px]"><Text value={item} /></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="reveal card p-7">
+            <h2 class="text-2xl">Кому подходит</h2>
+            <ul class="mt-5 space-y-3">
+              {d.forWhom.map((item) => <li class="flex gap-3 text-muted"><span class="mt-2.5 size-1.5 shrink-0 rounded-full bg-accent"></span>{item}</li>)}
+            </ul>
+          </div>
+          <div class="reveal card p-7" style="--i:1">
+            <h2 class="text-2xl">Что нужно от вас</h2>
+            <ul class="mt-5 space-y-3">
+              {d.fromClient.map((item) => <li class="flex gap-3 text-muted"><span class="mt-2.5 size-1.5 shrink-0 rounded-full bg-accent"></span>{item}</li>)}
+            </ul>
+            <p class="mt-5 text-sm text-soft">Не хватает каких-то документов? Ничего страшного — начнём с того, что есть.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-4">
+        <div class="reveal dark-zone spot relative isolate overflow-hidden rounded-[28px] p-7 lg:sticky lg:top-28">
+          <div class="dots -z-10 opacity-60"></div>
+          <div class="absolute -bottom-32 left-1/2 -z-10 size-[380px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(47,107,255,0.45),transparent_60%)]"></div>
+          <IsoIcon variant={d.icon} dark class="iso-reveal mx-auto h-40 w-auto" />
+          <p class="eyebrow mt-6 text-accent-bright">Стоимость</p>
+          <p class="mt-2 font-display text-4xl font-semibold text-white">{d.price}</p>
+          <p class="mt-3 text-sm text-white/60">Точную цену называем после изучения документов — до начала работы.</p>
+          <div class="mt-6 space-y-3">
+            <a href="#zayavka" class="btn btn-primary w-full">Оставить заявку</a>
+            <a href={contacts.whatsapp} target="_blank" rel="noopener" data-goal="messenger_click" class="btn btn-ghost w-full"><Icon name="whatsapp" class="size-5" />WhatsApp</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {d.faq.length > 0 && <Faq items={d.faq} title={`Вопросы: ${d.title.toLowerCase()}`} />}
+
+  <section class="bg-white py-16 md:py-24">
+    <div class="container-x">
+      <h2 class="reveal text-3xl md:text-4xl">Другие услуги</h2>
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        {others.map((s, i) => (
+          <a href={`/uslugi/${s.id}/`} class="reveal card card-hover group flex items-center gap-5 p-5" style={`--i:${i}`}>
+            <IsoIcon variant={s.data.icon} class="iso-reveal h-16 w-auto shrink-0" />
+            <span class="flex-1">
+              <span class="block font-display font-semibold leading-snug">{s.data.title}</span>
+              <span class="mt-1 block text-sm text-muted">{s.data.price}</span>
+            </span>
+            <Icon name="arrow" class="size-5 text-accent transition-transform group-hover:translate-x-1" />
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CtaSection title="Обсудим вашу ситуацию" source={`service:${entry.id}`} />
+</Base>

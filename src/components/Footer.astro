@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import Text from './Text.astro';
+import { nav, contacts, site, regionsAll } from '../config/site';
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const year = new Date().getFullYear();
+---
+<footer class="dark-zone relative overflow-hidden">
+  <div class="container-x relative border-t border-white/10 pt-14">
+    <div class="grid gap-12 md:grid-cols-12">
+      <div class="md:col-span-4">
+        <Logo class="text-white" />
+        <p class="mt-5 max-w-sm text-[15px] text-white/60">
+          {site.status}. Составляем иски, ходатайства, жалобы и обращения, проводим правовую экспертизу — дистанционно.
+        </p>
+        <p class="mt-4 text-sm text-white/50">{regionsAll.join(' · ')}</p>
+      </div>
+      <div class="md:col-span-3">
+        <p class="eyebrow text-white/60">Услуги</p>
+        <ul class="mt-4 space-y-2.5 text-[15px]">
+          {services.map((s) => <li><a class="text-white/75 transition hover:text-white" href={`/uslugi/${s.id}/`}>{s.data.title}</a></li>)}
+        </ul>
+      </div>
+      <div class="md:col-span-2">
+        <p class="eyebrow text-white/60">Сайт</p>
+        <ul class="mt-4 space-y-2.5 text-[15px]">
+          {nav.map((n) => <li><a class="text-white/75 transition hover:text-white" href={n.href}>{n.label}</a></li>)}
+        </ul>
+      </div>
+      <div class="md:col-span-3">
+        <p class="eyebrow text-white/60">Связаться</p>
+        <ul class="mt-4 space-y-3 text-[15px]">
+          <li><a class="flex items-center gap-2.5 text-white/75 hover:text-white" href={contacts.telegram} target="_blank" rel="noopener" data-goal="messenger_click"><Icon name="telegram" class="size-4" />Telegram</a></li>
+          <li><a class="flex items-center gap-2.5 text-white/75 hover:text-white" href={contacts.whatsapp} target="_blank" rel="noopener" data-goal="messenger_click"><Icon name="whatsapp" class="size-4" />WhatsApp</a></li>
+          <li><a class="flex items-center gap-2.5 text-white/75 hover:text-white" href={contacts.phoneHref} data-goal="phone_click"><Icon name="phone" class="size-4" /><Text value={contacts.phoneLabel} /></a></li>
+          <li><a class="flex items-center gap-2.5 text-white/75 hover:text-white" href={contacts.email}><Icon name="mail" class="size-4" /><Text value={contacts.emailLabel} /></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-14 rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/55">
+      Информация на сайте носит общий характер и не заменяет индивидуальную юридическую консультацию. Мы не гарантируем исход дела: решение принимает суд или уполномоченный орган.
+    </div>
+
+    <div class="mt-8 flex flex-col gap-4 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
+      <p>© {year} {site.brand}. <Text value="[ЗАПОЛНИТЬ: ФИО / ИП, ИНН, ОГРНИП]" /></p>
+      <div class="flex flex-wrap gap-x-6 gap-y-2">
+        <a class="hover:text-white" href="/politika-konfidencialnosti/">Политика конфиденциальности</a>
+        <a class="hover:text-white" href="/soglasie-na-obrabotku/">Согласие на обработку ПДн</a>
+        <a class="hover:text-white" href="/oferta/">Условия оказания услуг</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Финальный «восход» -->
+  <div class="relative mt-16 h-[220px] overflow-hidden md:h-[300px]" aria-hidden="true">
+    <p class="absolute inset-x-0 top-6 text-center font-display text-[clamp(2.2rem,1rem+6vw,6.5rem)] font-bold tracking-tight text-white/[0.07]">Спокойно. По делу. Онлайн.</p>
+    <div class="absolute left-1/2 top-[55%] h-[90vw] w-[220vw] -translate-x-1/2 rounded-[50%] bg-[linear-gradient(180deg,#5d95ff_0%,#bcd3ff_5%,#eef4ff_16%)] shadow-[0_-30px_120px_30px_rgba(47,107,255,0.6),0_-6px_40px_4px_rgba(140,180,255,0.7)] md:w-[160vw]"></div>
+  </div>
+</footer>

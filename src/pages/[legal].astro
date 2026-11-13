@@ -1,0 +1,36 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Text from '../components/Text.astro';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('legal');
+  return pages.map((entry) => ({ params: { legal: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+<Base title={entry.data.title} description={entry.data.description}>
+  <PageHero title={entry.data.title} crumbs={[{ href: `/${entry.id}/`, label: entry.data.title }]} />
+  <section class="py-16 md:py-24">
+    <div class="container-x">
+      <p class="text-sm text-muted">Редакция от <Text value={entry.data.updated} /></p>
+      <article class="prose-legal legal mt-8">
+        <Content />
+      </article>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .legal blockquote {
+    margin: 0 0 2rem;
+    border-left: 3px solid var(--color-accent);
+    background: #fff;
+    border-radius: 0 14px 14px 0;
+    padding: 1rem 1.25rem;
+    color: var(--color-muted);
+  }
+  .legal blockquote p { margin: 0; }
+</style>

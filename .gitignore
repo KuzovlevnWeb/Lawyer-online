@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.netlify/
+
+# Референсы дизайна (скриншоты чужого сайта) — не часть сайта
+Reff/

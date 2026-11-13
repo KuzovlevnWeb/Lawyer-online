@@ -1,0 +1,55 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { nav, contacts } from '../config/site';
+const path = Astro.url.pathname;
+---
+<header class="site-header fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-5 md:pt-4" data-solid="false">
+  <div class="header-shell mx-auto flex max-w-[1240px] items-center justify-between gap-4 rounded-2xl border border-transparent px-3 py-2.5 text-white transition-all duration-500 md:px-4">
+    <Logo />
+    <nav class="hidden items-center gap-1 lg:flex" aria-label="Основное меню">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'whitespace-nowrap rounded-full px-3.5 py-2 text-[15px] font-medium transition-colors hover:bg-white/10',
+            path.startsWith(item.href) ? 'opacity-100' : 'opacity-75 hover:opacity-100',
+          ]}
+          aria-current={path.startsWith(item.href) ? 'page' : undefined}
+        >{item.label}</a>
+      ))}
+    </nav>
+    <div class="flex items-center gap-2">
+      <a href={contacts.telegram} target="_blank" rel="noopener" data-goal="messenger_click" class="header-cta-ghost hidden items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold transition hover:border-accent-bright md:inline-flex lg:hidden xl:inline-flex">
+        <Icon name="telegram" class="size-4" /> Telegram
+      </a>
+      <a href="/#zayavka" class="btn btn-primary !hidden !min-h-0 !px-4 !py-2.5 !text-sm sm:!inline-flex">Обсудить задачу</a>
+      <button type="button" class="menu-toggle grid size-10 place-items-center rounded-full border border-current/20 lg:hidden" aria-expanded="false" aria-controls="mobile-menu" aria-label="Открыть меню">
+        <Icon name="menu" class="icon-open size-5" /><Icon name="close" class="icon-close hidden size-5" />
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="mobile-menu pointer-events-none fixed inset-0 z-[-1] bg-ink/97 opacity-0 backdrop-blur-xl transition-opacity duration-500 lg:hidden" hidden>
+    <div class="dots"></div>
+    <nav class="container-x relative flex h-full flex-col justify-center gap-2 pt-20" aria-label="Мобильное меню">
+      {nav.map((item, i) => (
+        <a href={item.href} class="menu-link font-display border-b border-white/10 py-4 text-3xl font-semibold text-white" style={`--i:${i}`}>
+          <span class="mr-3 align-middle text-xs font-medium text-accent-bright">0{i + 1}</span>{item.label}
+        </a>
+      ))}
+      <div class="mt-8 grid grid-cols-2 gap-3">
+        <a href={contacts.telegram} target="_blank" rel="noopener" data-goal="messenger_click" class="btn btn-ghost !border-white/20 !bg-white/5 !text-white"><Icon name="telegram" class="size-5" />Telegram</a>
+        <a href={contacts.whatsapp} target="_blank" rel="noopener" data-goal="messenger_click" class="btn btn-ghost !border-white/20 !bg-white/5 !text-white"><Icon name="whatsapp" class="size-5" />WhatsApp</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .menu-toggle[aria-expanded="true"] :global(.icon-open) { display: none; }
+  .menu-toggle[aria-expanded="true"] :global(.icon-close) { display: block; }
+  .mobile-menu.open { opacity: 1; pointer-events: auto; }
+  .menu-link { opacity: 0; transform: translateY(16px); transition: opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1); transition-delay: calc(var(--i) * 60ms + 100ms); }
+  .mobile-menu.open .menu-link { opacity: 1; transform: none; }
+</style>

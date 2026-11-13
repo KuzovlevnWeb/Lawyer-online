@@ -1,0 +1,55 @@
+---
+/** Тёмная «шапка» внутренних страниц: полосы, сетка точек, хлебные крошки */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  crumbs?: { href: string; label: string }[];
+}
+const { eyebrow, title, lead, crumbs = [] } = Astro.props;
+const site = Astro.site!;
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [{ href: '/', label: 'Главная' }, ...crumbs].map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.label,
+    item: new URL(c.href, site).href,
+  })),
+};
+const words = title.split(' ');
+---
+<section data-hero class="dark-zone relative isolate overflow-hidden pb-24 pt-32 md:pb-32 md:pt-44">
+  <div class="stripes -z-10 opacity-60 [mask-image:linear-gradient(180deg,#000_10%,transparent_95%)]" style="--cols:10">
+    {Array.from({ length: 10 }, (_, i) => <i style={`--a:${0.25 + ((i * 41) % 70) / 100};--d:${10 + (i % 4) * 3}s;--delay:-${i * 2.1}s`}></i>)}
+  </div>
+  <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_20%_20%,transparent_0%,rgba(7,11,22,0.9)_70%)]"></div>
+  <div class="dots -z-10"></div>
+  <div class="grain -z-10"></div>
+  <span class="streak -z-10" style="top:30%;left:40%;rotate:-24deg"></span>
+  <div class="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-accent-bright/60 to-transparent"></div>
+
+  <div class="container-x">
+    {crumbs.length > 0 && (
+      <nav aria-label="Хлебные крошки" class="fade-up mb-8 text-sm text-white/50" style="--delay:.05s">
+        <ol class="flex flex-wrap items-center gap-2">
+          <li><a href="/" class="hover:text-white">Главная</a></li>
+          {crumbs.map((c, i) => (
+            <li class="flex items-center gap-2">
+              <span aria-hidden="true">/</span>
+              {i === crumbs.length - 1 ? <span aria-current="page" class="text-white/80">{c.label}</span> : <a href={c.href} class="hover:text-white">{c.label}</a>}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+    {eyebrow && <p class="fade-up eyebrow text-accent-bright" style="--delay:.1s">{eyebrow}</p>}
+    <h1 class="blur-in mt-4 max-w-4xl text-[clamp(2.25rem,1.5rem+3.6vw,4.4rem)] text-white">
+      {words.map((w, i) => <span style={`--w:${i}`}>{w}&nbsp;</span>)}
+    </h1>
+    {lead && <p class="fade-up mt-6 max-w-2xl text-lg text-white/65 md:text-xl" style="--delay:.5s">{lead}</p>}
+    <slot />
+  </div>
+  {crumbs.length > 0 && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />}
+</section>

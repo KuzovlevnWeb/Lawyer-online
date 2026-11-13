@@ -1,0 +1,37 @@
+---
+interface Props {
+  items: { q: string; a: string }[];
+  title?: string;
+  withSchema?: boolean;
+}
+import Text from './Text.astro';
+const { items, title = 'Частые вопросы', withSchema = true } = Astro.props;
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items
+    .filter((i) => !i.a.includes('ЗАПОЛНИТЬ'))
+    .map((i) => ({ '@type': 'Question', name: i.q, acceptedAnswer: { '@type': 'Answer', text: i.a } })),
+};
+---
+<section class="py-20 md:py-28" id="faq">
+  <div class="container-x grid gap-10 lg:grid-cols-12">
+    <div class="reveal lg:col-span-4">
+      <p class="eyebrow text-accent">FAQ</p>
+      <h2 class="h-section mt-4">{title}</h2>
+      <p class="mt-5 max-w-sm text-muted">Не нашли ответ? Напишите нам в мессенджер — ответим по существу.</p>
+    </div>
+    <div class="lg:col-span-8">
+      {items.map((item, i) => (
+        <details class="faq-item reveal group border-b border-line" style={`--i:${i % 4}`} name="faq">
+          <summary class="flex items-center justify-between gap-6 py-6 text-left">
+            <span class="font-display text-lg font-semibold leading-snug md:text-xl">{item.q}</span>
+            <span class="plus grid size-9 shrink-0 place-items-center rounded-full border border-line text-xl leading-none">+</span>
+          </summary>
+          <div class="answer"><div><p class="pb-6 pr-12 text-muted"><Text value={item.a} /></p></div></div>
+        </details>
+      ))}
+    </div>
+  </div>
+  {withSchema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+</section>
