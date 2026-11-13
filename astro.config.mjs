@@ -6,8 +6,9 @@ import { unified } from '@astrojs/markdown-remark';
 import { rehypeFill } from './src/lib/rehype-fill.mjs';
 
 export default defineConfig({
-  // [ЗАПОЛНИТЬ: домен сайта] — нужен для canonical, sitemap и Open Graph
-  site: 'https://example.ru',
+  // Адрес сайта для canonical, sitemap и Open Graph — переменная окружения SITE_URL
+  // [ЗАПОЛНИТЬ: домен сайта] — после покупки домена укажите его в SITE_URL
+  site: process.env.SITE_URL || 'https://example.ru',
   trailingSlash: 'always',
   integrations: [sitemap({ filter: (page) => !page.includes('/404') })],
   markdown: { processor: unified({ rehypePlugins: [rehypeFill] }) },

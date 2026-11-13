@@ -70,6 +70,8 @@ npm run build
 
 | Переменная | Зачем |
 |---|---|
+| `SITE_URL` | Адрес сайта: canonical, sitemap, Open Graph, robots.txt |
+| `SITE_NOINDEX` | `1` — закрыть сайт от поисковиков, пока заполняются данные |
 | `PUBLIC_YM_ID` | ID Яндекс.Метрики. Цели: `form_submit`, `messenger_click`, `phone_click` — создайте их в Метрике как «JavaScript-событие» |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Уведомления в Telegram |
 | `TELEGRAM_MINIMAL` | `1` — в Telegram уходит только «Новая заявка, смотрите почту», без персональных данных |
@@ -115,13 +117,19 @@ NODE_ENV=production pm2 start "node --env-file=.env server/lead-server.mjs" --na
 
 4. HTTPS — certbot.
 
-### Вариант B — Netlify
+### Вариант B — Netlify (сейчас сайт опубликован здесь)
 
-Подключите репозиторий, настройки сборки уже в `netlify.toml`. Переменные окружения задайте в Site settings → Environment variables. Функция будет доступна по `/api/lead/`.
+- Адрес: https://lawyer-online-761.netlify.app
+- Панель: https://app.netlify.com/projects/lawyer-online-761
+- Переменные окружения: Project configuration → Environment variables (уже заданы `SITE_URL` и `SITE_NOINDEX=1`).
+- Публикация из этой папки: `npx netlify-cli deploy --build --prod`.
+- Чтобы сайт обновлялся сам после каждого push в GitHub: Project configuration → Build & deploy → Link repository → KuzovlevnWeb/Lawyer-online.
+
+Функция заявок доступна по `/api/lead/`.
 
 ### После выбора домена
 
-Замените `https://example.ru` в `astro.config.mjs` (поле `site`) и в `public/robots.txt`.
+Укажите домен в переменной `SITE_URL` и пересоберите сайт. `robots.txt` и sitemap обновятся автоматически.
 
 ## Проверка перед запуском
 
@@ -129,4 +137,4 @@ NODE_ENV=production pm2 start "node --env-file=.env server/lead-server.mjs" --na
 - [ ] Тестовая заявка доходит в почту и Telegram
 - [ ] Цели Метрики срабатывают (режим отладки: `?_ym_debug=1`)
 - [ ] Политика и согласие проверены юристом (то есть вами)
-- [ ] Домен прописан в `astro.config.mjs` и `robots.txt`
+- [ ] Домен прописан в `SITE_URL`, переменная `SITE_NOINDEX` удалена

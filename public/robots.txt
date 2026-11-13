@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /api/
-
-# [ЗАПОЛНИТЬ: заменить example.ru на домен сайта]
-Sitemap: https://example.ru/sitemap-index.xml
